@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор паролей и хэшей</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div>
+        <h1 class="topbar__title">Генератор паролей и хэшей</h1>
+        <p class="topbar__subtitle">Вариант N20 · FastAPI + PostgreSQL + nginx в Docker Compose</p>
+      </div>
+      <div id="health" class="status status--pending" title="Состояние backend и БД">
+        <span class="status__dot"></span>
+        <span class="status__text">Проверка…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <div class="card__head">
+          <h2>Генератор паролей</h2>
+          <p>Криптостойкая генерация на сервере через модуль <code>secrets</code></p>
+        </div>
+
+        <div class="field">
+          <div class="field__row">
+            <label for="pw-length">Длина пароля</label>
+            <span class="badge" id="pw-length-value">16</span>
+          </div>
+          <input type="range" id="pw-length" min="4" max="128" value="16">
+          <div class="range-hints"><span>4</span><span>128</span></div>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Наборы символов</span>
+          <div class="checks">
+            <label class="check"><input type="checkbox" id="pw-upper" checked><span>A–Z</span></label>
+            <label class="check"><input type="checkbox" id="pw-lower" checked><span>a–z</span></label>
+            <label class="check"><input type="checkbox" id="pw-digits" checked><span>0–9</span></label>
+            <label class="check"><input type="checkbox" id="pw-symbols"><span>!@#$</span></label>
+          </div>
+        </div>
+
+        <button class="btn btn--primary btn--block" id="pw-generate">Сгенерировать</button>
+
+        <div class="output" id="pw-output-wrap" hidden>
+          <div class="output__row">
+            <code class="output__value" id="pw-output"></code>
+            <button class="btn btn--ghost btn--sm" id="pw-copy" title="Копировать">Копировать</button>
+          </div>
+          <div class="strength">
+            <div class="strength__bar" id="pw-strength-bar">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="strength__label" id="pw-strength-label"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>Генератор хэшей</h2>
+          <p>md5, sha1, sha256, sha512 через <code>hashlib</code>, bcrypt с солью</p>
+        </div>
+
+        <div class="field">
+          <label for="hash-text">Исходный текст</label>
+          <textarea id="hash-text" rows="3" placeholder="Введите текст…"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="hash-algo">Алгоритм</label>
+          <select id="hash-algo">
+            <option value="md5">MD5</option>
+            <option value="sha1">SHA-1</option>
+            <option value="sha256" selected>SHA-256</option>
+            <option value="sha512">SHA-512</option>
+            <option value="bcrypt">bcrypt</option>
+          </select>
+        </div>
+
+        <button class="btn btn--primary btn--block" id="hash-generate">Получить хэш</button>
+
+        <div class="output" id="hash-output-wrap" hidden>
+          <div class="output__row">
+            <code class="output__value output__value--wrap" id="hash-output"></code>
+            <button class="btn btn--ghost btn--sm" id="hash-copy" title="Копировать">Копировать</button>
+          </div>
+          <div class="output__meta" id="hash-meta"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card card--wide">
+      <div class="card__head">
+        <h2>Данные из БД</h2>
+        <p>Всё, что сохранено в PostgreSQL</p>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn" id="db-passwords">Показать пароли из БД</button>
+        <div class="toolbar__group">
+          <button class="btn" id="db-hashes">Показать хэши из БД</button>
+          <select id="db-hash-filter" title="Фильтр по алгоритму">
+            <option value="">Все алгоритмы</option>
+            <option value="md5">MD5</option>
+            <option value="sha1">SHA-1</option>
+            <option value="sha256">SHA-256</option>
+            <option value="sha512">SHA-512</option>
+            <option value="bcrypt">bcrypt</option>
+          </select>
+        </div>
+        <button class="btn" id="db-stats">Статистика</button>
+        <button class="btn btn--danger" id="db-clear">Очистить историю</button>
+      </div>
+
+      <div class="results" id="results">
+        <p class="placeholder">Нажмите одну из кнопок выше, чтобы загрузить данные.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Московский Политех · Лабораторная работа «Развёртывание веб-приложения в Docker Compose»</div>
+  </footer>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
